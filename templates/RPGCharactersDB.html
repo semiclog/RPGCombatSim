@@ -1,0 +1,81 @@
+{% extends "layoutDB.html" %}
+{% block content %}
+
+<script>
+	function showteam(teamID) {
+		var Team = document.getElementById(teamID);
+		if (Team.style.display == 'block') {
+			Team.style.display = 'none';
+		} else {
+			Team.style.display = 'block';
+		}
+	}
+</script>
+<div class="w3-container">
+    <ul class="w3-ul" style="width:100%";>
+        <h2> Your available teams are:</h2>
+        
+        <li class= "w3-bar">
+                Team1 Wins/Losses: (
+				{{ teamlistdict[0]['Wins'] }} / 
+				{{ teamlistdict[0]['Losses'] }} )
+				<button id="Team1" class="w3-button w3-black w3-round-xlarge" onclick="showteam('team1list');">Show/Hide</button>
+                <a href = "{{ url_for('RPGPoker') }}" ><button id="Team1Battle" class="w3-button w3-black w3-round-xlarge">New Battle</button></a>
+                <a href = "{{ url_for('home') }}" ><button id="Team1Reset" class="w3-button w3-black w3-round-xlarge">Delete/Reroll Team</button></a>    
+				<ul id="team1list" style="display:none">
+					{% for adventurer in range(5): %}
+					<li>	{{statlistdict[0][adventurer]['CharacterName']}}
+							Level: {{statlistdict[0][adventurer]['Level']}}
+							XP:   {{statlistdict[0][adventurer]['XP']}}
+							Strength/Speed/Endurance: {{statlistdict[0][adventurer]['Strength']}} 
+							{{statlistdict[0][adventurer]['Speed']}}
+							{{statlistdict[0][adventurer]['Endurance']}} 
+							HitPoints: {{statlistdict[0][adventurer]['HitPoints']}}  </li>
+					{% endfor %}
+				</ul>
+		</li>
+        
+        <li class= "w3-bar">
+                Team2 Wins/Losses: (
+				{{ teamlistdict[1]['Wins'] }} /
+				{{ teamlistdict[1]['Losses'] }} )
+            	<button id="Team2" class="w3-button w3-black w3-round-xlarge" onclick="showteam('team2list');">Show/Hide</button>
+                <a href = "{{ url_for('RPGPoker') }}" ><button id="Team1Battle" class="w3-button w3-black w3-round-xlarge">New Battle</button></a>
+                <a href = "{{ url_for('home') }}" ><button id="Team1Reset" class="w3-button w3-black w3-round-xlarge">Delete/Reroll Team</button></a>    
+				<ul id="team2list" style="display:none">
+					{% for adventurer in range(5): %}
+					<li>	{{statlistdict[1][adventurer]['CharacterName']}}
+							Level: {{statlistdict[1][adventurer]['Level']}}
+							XP:   {{statlistdict[1][adventurer]['XP']}}
+							Strength/Speed/Endurance: {{statlistdict[1][adventurer]['Strength']}} 
+							{{statlistdict[1][adventurer]['Speed']}}
+							{{statlistdict[1][adventurer]['Endurance']}} 
+							HitPoints: {{statlistdict[1][adventurer]['HitPoints']}}  </li>
+					{% endfor %}
+				</ul>
+		</li>
+        
+        <li class= "w3-bar">
+                Team3 Wins/Losses: (
+				{{ teamlistdict[2]['Wins'] }} /
+				{{ teamlistdict[2]['Losses'] }} )
+            	<button id="Team2" class="w3-button w3-black w3-round-xlarge" onclick="showteam('team3list');">Show/Hide</button>
+                <a href = "{{ url_for('RPGPoker') }}" ><button id="Team1Battle" class="w3-button w3-black w3-round-xlarge">New Battle</button></a>
+                <a href = "{{ url_for('home') }}" ><button id="Team1Reset" class="w3-button w3-black w3-round-xlarge">Delete/Reroll Team</button></a>    
+				<ul id="team3list" style="display:none">
+					{% for adventurer in range(5): %}
+					<li>	{{statlistdict[2][adventurer]['CharacterName']}}
+							Level: {{statlistdict[2][adventurer]['Level']}}
+							XP:   {{statlistdict[2][adventurer]['XP']}}
+							Strength/Speed/Endurance: {{statlistdict[2][adventurer]['Strength']}} 
+							{{statlistdict[2][adventurer]['Speed']}}
+							{{statlistdict[2][adventurer]['Endurance']}} 
+							HitPoints: {{statlistdict[2][adventurer]['HitPoints']}}  </li>
+					{% endfor %}
+                </ul>
+            </div>
+        </li>
+    </ul>
+</div>
+
+{% endblock %}

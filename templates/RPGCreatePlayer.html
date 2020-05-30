@@ -1,0 +1,18 @@
+{% extends "layoutDB.html" %}
+{% block content %}
+
+<div id="signin" class="w3-display-middle" "w3-center">
+    <p> Entere a new username and password </p>
+      <form action="" method="post">
+        <input type="text" placeholder="Username" name="username" value="{{
+          request.form.username }}">
+         <input type="password" placeholder="Password" name="password" value="{{
+          request.form.password }}">
+        <input class="btn btn-default" type="submit" value="Create Player">
+      </form>
+      {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}
+      {% endif %}
+</div>
+
+{% endblock %}

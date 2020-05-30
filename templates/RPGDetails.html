@@ -1,0 +1,21 @@
+{% extends "layoutDB.html" %}
+{% block content %}
+
+<div id="wanttoplay" class="w3-display-middle" "w3-center">
+    <p> Combat Details </p>
+    <div class="w3-container">
+		<p> Attack Requirement = Hitpoints > 0, Costs 4 Endurance </p>
+		<p> Attack Order = By Speed </p>
+		<p> Damage = Power//6 + Speed//6 + Endurance//6 + Luck//6 </p>
+		<p> Each round all Characters gain 1 Endurance </p>
+	</div>
+	<p> Bid Details </p>
+	<div class="w3-container">
+		<p> The first bid is worth 5 points, less how far off it was from the actual result.  Cannot be less than 0. </p>
+		<p> The first bid is worth 4 points, less how far off it was from the actual result.  Cannot be less than 0. </p>
+		<p> The first bid is worth 3 points, less how far off it was from the actual result.  Cannot be less than 0. </p>
+		<p> The first bid is worth 2 points, less how far off it was from the actual result.  Cannot be less than 0. </p>
+  </div>
+</div>
+
+{% endblock %}

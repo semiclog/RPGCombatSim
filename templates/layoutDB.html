@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RPG Poker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}">
+  </head>
+  <body>
+  
+	<!-- D3.js -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script> -->
+    <!-- <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script> -->
+    <!-- Plotly.js -->
+    <!-- <script src="https://d14fo0winaifog.cloudfront.net/plotly-basic.js"></script> -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+	
+	<div class="w3-display-container w3-green" >
+		<div class="w3-bar">
+			<div class="w3-bar-item w3-right">
+				{% if session.logged_in %}
+					<span class="w3-bar-item" style="vertical-align:middle";>You are loggin in as: {{session.username}}</span>
+					<a href="{{ url_for('logout') }}" class="w3-bar-item w3-button w3-black">Logout</a>
+				{%else%}
+					<a href="{{ url_for('login') }}" class="w3-bar-item w3-button w3-black">Login</a>
+					<a href="{{ url_for('createplayer') }}" class="w3-bar-item w3-button w3-gray">Create Player</a>
+				{% endif %}
+			</div> 
+			<div class="w3-bar-item w3-left" >
+				<span class="w3-bar-item" style="vertical-align:middle";> RPG Analyst </span>
+				<a href="{{ url_for('home') }}" class="w3-bar-item w3-button">Home</a>
+				<a href="{{ url_for('players') }}" class="w3-bar-item w3-button">Players</a>
+				<a href="{{ url_for('RPGPoker') }}" class="w3-bar-item w3-button">RPGPoker</a>
+				<a href="{{ url_for('RPGEnemyStats') }}" class="w3-bar-item w3-button">EnemyStats</a>
+				<a href="{{ url_for('details') }}" class="w3-bar-item w3-button">Details</a>
+			</div>
+        </div>
+	</div>
+		
+	<div style="margin-left:150px;width:80%";>
+      {% block content %}
+      {% endblock %}
+    </div>
+  </body>
+</html>

@@ -1,0 +1,221 @@
+{% extends "layoutDB.html" %}
+{% block content %}
+
+<script>
+	function showteam(teamID) {
+		var Team = document.getElementById(teamID);
+		if (Team.style.display == 'block') {
+			Team.style.display = 'none';
+		} else {
+			Team.style.display = 'block';
+		}
+	}
+	function arrSum(arr) {
+		var numbers = arr
+		var sum = 0
+		for (var i = 0; i < numbers.length; i++) 
+			{sum += numbers[i]}
+		return sum
+	}
+			
+	function d6roll() {
+		statlistd6=[Math.floor(Math.random()*7), Math.floor(Math.random()*7), Math.floor(Math.random()*7), Math.floor(Math.random()*7)]
+		return arrSum(statlistd6)-Math.min(statlistd6)
+	}
+	
+	function reroll(PlayerID) {
+		document.getElementById('reroll').style.display='block';
+		var strength = d6roll();
+		var speed = d6roll();
+		var endurance = d6roll();
+		document.getElementById('reroll2').innerHTML = "Strength/Speed/Endurance:" + strength + "/" + speed + "/" + endurance;
+		document.getElementById('strengthvar').innerHTML = strength;
+		document.getElementById('speedvar').innerHTML = speed;
+		document.getElementById('endurancevar').innerHTML = endurance;
+		document.getElementById('characteridvar').innerHTML = PlayerID;
+	}
+	
+	function accept_new_stats() {
+		var strength = document.getElementById('strengthvar').innerHTML;
+		var speed = document.getElementById('speedvar').innerHTML;
+		var endurance = document.getElementById('endurancevar').innerHTML;
+		var characterid = document.getElementById('characteridvar').innerHTML;
+		var entry = {
+			characterid: characterid,
+			strength: strength, 
+			speed: speed, 
+			endurance: endurance
+		};
+		
+		fetch( '/accept_new_stats', {
+		method: "POST",
+		credentials: "include",
+		body: JSON.stringify(entry),
+		cache: 'no-cache',
+		headers: new Headers({
+		"content-type": "application/json"
+		})
+		
+		})
+		.then(function (response) {
+			if (response.status !== 200) {
+				console.log('Response status was not 200: $(response.status)');
+				return ;
+			}
+		response.json().then(function (data) {
+			console.log(data)
+			})
+		})
+		document.getElementById('reroll').style.display='none';
+		window.location.href = "{{ url_for('players') }}";
+	}
+	
+	function battle_settings(characterid,strength) {
+		var entry = {
+			characterid: characterid,
+			strength: strength
+		};
+		
+		fetch( '/battle_settings', {
+		method: "POST",
+		credentials: "include",
+		body: JSON.stringify(entry),
+		cache: 'no-cache',
+		headers: new Headers({
+		"content-type": "application/json"
+		})
+		
+		})
+		.then(function (response) {
+			if (response.status !== 200) {
+				console.log('Response status was not 200: $(response.status)');
+				return ;
+			}
+		response.json().then(function (data) {
+			console.log(data)
+			})
+		})
+	
+	}
+	 
+	function battle_view (charactername,level,XP,strength,speed,endurance,hitpoints,characterid) {
+		document.getElementById('playerlist').style.display = 'none';
+		document.getElementById('battleenemy').style.display = 'block';
+		document.getElementById('BattleCharacterName').innerHTML = charactername;
+		document.getElementById('BattleCharacterLevel').innerHTML = level;
+		document.getElementById('BattleCharacterXP').innerHTML = XP;
+		document.getElementById('BattleCharacterStats').innerHTML = strength + " / " + speed + " / " + endurance;
+		document.getElementById('BattleCharacterHitPoints').innerHTML = hitpoints;
+	}
+	
+	function battle(characterid) {
+	
+		window.location.href = 'battle/' + characterid;
+	
+	}
+
+</script>
+<div class="w3-container">
+    <ul class="w3-ul">
+
+        <div id="reroll" class="w3-modal"	>
+			<!-- <div class="w3-modal-content w3-card-4"> -->
+				<div class="w3-center">
+					<div id="reroll2" ></div>
+					<div id="strengthvar" style="display:none"> </div>
+					<div id="speedvar" style="display:none"> </div>
+					<div id="endurancevar" style="display:none"> </div>
+					<div id="characteridvar" style="display:none"> </div>
+					<button onclick=document.getElementById('reroll').style.display='none' type="button" class="w3-button w3-red">AcceptOld</button>
+					<button onclick="accept_new_stats();" type="button" class="w3-button w3-red">Accept</button>
+					<button onclick="reroll()" type="button" class="w3-button w3-red">Reroll</button>
+					<button onclick=document.getElementById('reroll').style.display='none' type="button" class="w3-button w3-red">Cancel</button>
+				</div>
+			</div>
+		</div>
+				
+	</ul>
+		<div style="overflow-x:auto; padding: 50px 0px; width:100%" >
+		<table class="w3-table w3-bordered" id="playerlist">
+		  <tr>
+			<th>Name</th>
+			<th>Level</th>
+			<th>XP</th>
+			<th>Strength/Speed/Endurance</th>
+			<th>HitPoint</th>
+			<th>Actions</th>
+		  </tr>
+		  <tr>	
+			{% for adventurer in range(10): %}
+			<td align="center">	{{statlistdict[0][adventurer]['CharacterName']}} </td>
+			<td align="center">	{{statlistdict[0][adventurer]['Level']}} </td>
+			<td align="center"> 	{{statlistdict[0][adventurer]['XP']}} </td>
+			<td align="center">	{{statlistdict[0][adventurer]['Strength']}} / {{statlistdict[0][adventurer]['Speed']}} / {{statlistdict[0][adventurer]['Endurance']}} </td> 
+			<td align="center"> 	{{statlistdict[0][adventurer]['HitPoints']}} </td>
+			<td align="center">
+			<a href = "{{ url_for('battle_settings') }}" ><button title="Battle" id="Team0Battle" class="w3-button w3-black w3-round-xlarge">X1</button></a>
+			<button title="Battle" id="Battle" class="w3-button w3-black w3-round-xlarge" onclick="battle_view(
+				'{{statlistdict[0][adventurer]['CharacterName']}}',
+				'{{statlistdict[0][adventurer]['Level']}}',
+				'{{statlistdict[0][adventurer]['XP']}}',
+				'{{statlistdict[0][adventurer]['Strength']}}',
+				'{{statlistdict[0][adventurer]['Speed']}}',
+				'{{statlistdict[0][adventurer]['Endurance']}}',
+				'{{statlistdict[0][adventurer]['HitPoint']}}',
+				'{{statlistdict[0][adventurer]['CharacterID']}}')">X2</button>
+			<button title="Battle" id="Battle" class="w3-button w3-black w3-round-xlarge" onclick="battle('{{statlistdict[0][adventurer]['CharacterID']}}')">X3</button>
+			<button title = "Reroll Character" id="Team0Reset" class="w3-button w3-black w3-round-xlarge" onclick="reroll('{{statlistdict[0][adventurer]['CharacterID']}}')">N</button>  
+			</td>
+		  </tr>
+			{% endfor %}
+		  
+		 </table>
+		 <div id="battleenemy" style="display:none" >
+			<table class="w3-table w3-bordered">
+			  <tr>
+				<th>Name</th>
+				<th>Level</th>
+				<th>XP</th>
+				<th>Strength/Speed/Endurance</th>
+				<th>HitPoint</th>
+				<th>Actions</th>
+			  </tr>
+			  <tr>	
+				<td align="center" id="BattleCharacterName"></td>
+				<td align="center" id="BattleCharacterLevel"></td>
+				<td align="center" id="BattleCharacterXP"></td>
+				<td align="center" id="BattleCharacterStats"></td> 
+				<td align="center" id="BattleCharacterHitPoints"></td>
+				<td align="center" id="DummyAction"></td>
+			  </tr>
+			</table>
+			
+			  <h1 style="text-align:center"> VS </h1>
+
+			<table class="w3-table w3-bordered">
+			  <tr>
+				<th>Name</th>
+				<th>Level</th>
+				<th>XP</th>
+				<th>Strength/Speed/Endurance</th>
+				<th>HitPoint</th>
+				<th>Actions</th>
+			  </tr>
+			  <tr>	
+				<td align="center">	{{statlistdict[0][1]['CharacterName']}} </td>
+				<td align="center">	{{statlistdict[0][1]['Level']}} </td>
+				<td align="center"> 	{{statlistdict[0][1]['XP']}} </td>
+				<td align="center">	{{statlistdict[0][1]['Strength']}} / 
+						{{statlistdict[0][1]['Speed']}} /
+						{{statlistdict[0][1]['Endurance']}} </td> 
+				<td align="center"> 	{{statlistdict[0][1]['HitPoints']}} </td>
+				<td align="center"> .....................</td>
+			  </tr>
+		  
+		  </table>
+		</div>
+
+        
+</div>
+
+{% endblock %}

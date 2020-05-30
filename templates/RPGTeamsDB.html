@@ -1,0 +1,155 @@
+{% extends "layoutDB.html" %}
+{% block content %}
+
+<script>
+	function showteam(teamID) {
+		var Team = document.getElementById(teamID);
+		if (Team.style.display == 'block') {
+			Team.style.display = 'none';
+		} else {
+			Team.style.display = 'block';
+		}
+	}
+	function arrSum(arr) {
+		var numbers = arr
+		var sum = 0
+		for (var i = 0; i < numbers.length; i++) 
+			{sum += numbers[i]}
+		return sum
+	}
+			
+	function d6roll() {
+		statlistd6=[Math.floor(Math.random()*7), Math.floor(Math.random()*7), Math.floor(Math.random()*7), Math.floor(Math.random()*7)]
+		return arrSum(statlistd6)-Math.min(...statlistd6)
+	}
+	
+	function reroll(PlayerID) {
+		document.getElementById('reroll').style.display='block';
+		var strength = d6roll()
+		var speed = d6roll()
+		var endurance = d6roll()
+		document.getElementById('reroll2').innerHTML = "Strength/Speed/Endurance:" + strength + "/" + speed + "/" + endurance;
+		document.getElementById('strengthvar').innerHTML = strength;
+		document.getElementById('speedvar').innerHTML = speed;
+		document.getElementById('endurancevar').innerHTML = endurance;
+		document.getElementById('characteridvar').innerHTML = PlayerID;
+	}
+	
+	function accept_new_stats() {
+		var strength = document.getElementById('strengthvar').innerHTML;
+		var speed = document.getElementById('speedvar').innerHTML;
+		var endurance = document.getElementById('endurancevar').innerHTML;
+		var characterid = document.getElementById('characteridvar').innerHTML;
+		var entry = {
+			characterid: characterid,
+			strength: strength, 
+			speed: speed, 
+			endurance: endurance
+		};
+		
+		fetch( '/accept_new_stats', {
+		method: "POST",
+		credentials: "include",
+		body: JSON.stringify(entry),
+		cache: 'no-cache',
+		headers: new Headers({
+		"content-type": "application/json"
+		})
+		
+		})
+		.then(function (response) {
+			if (response.status !== 200) {
+				console.log('Response status was not 200: $(response.status)');
+				return ;
+			}
+		response.json().then(function (data) {
+			console.log(data)
+			})
+		})
+	}
+	
+</script>
+<div class="w3-container">
+    <ul style="width:100% list-style-type:none;">
+        <h2> Your available teams are:</h2>
+		
+        <div id="reroll" class="w3-modal"	>
+			<!-- <div class="w3-modal-content w3-card-4"> -->
+				<div class="w3-center">
+					<div id="reroll2" ></div>
+					<div id="strengthvar" style="display:none"> </div>
+					<div id="speedvar" style="display:none"> </div>
+					<div id="endurancevar" style="display:none"> </div>
+					<div id="characteridvar" style="display:none"> </div>
+					<button onclick=document.getElementById('reroll').style.display='none' type="button" class="w3-button w3-red">AcceptOld</button>
+					<button onclick="accept_new_stats();" type="button" class="w3-button w3-red">Accept</button>
+					<button onclick="reroll()" type="button" class="w3-button w3-red">Reroll</button>
+					<button onclick=document.getElementById('reroll').style.display='none' type="button" class="w3-button w3-red">Cancel</button>
+				</div>
+			</div>
+		</div>
+        
+		<li class= "w3-bar">
+                Team1 Wins/Losses: (
+				{{ teamlistdict[0]['Wins'] }} / 
+				{{ teamlistdict[0]['Losses'] }} )
+				<button id="Team1" class="w3-button w3-black w3-round-xlarge" onclick="showteam('team1list');">Show/Hide</button>
+                <a href = "{{ url_for('RPGPoker') }}" ><button id="Team1Battle" class="w3-button w3-black w3-round-xlarge">New Battle</button></a>
+                <a href = "{{ url_for('home') }}" ><button id="Team1Reset" class="w3-button w3-black w3-round-xlarge">Delete/Reroll Team</button></a>    
+				<ul id="team1list" style="display:none">
+					{% for adventurer in range(5): %}
+					<li >	{{statlistdict[0][adventurer]['CharacterName']}}
+							Level: {{statlistdict[0][adventurer]['Level']}}
+							XP:   {{statlistdict[0][adventurer]['XP']}}
+							Strength/Speed/Endurance: {{statlistdict[0][adventurer]['Strength']}} 
+							{{statlistdict[0][adventurer]['Speed']}}
+							{{statlistdict[0][adventurer]['Endurance']}} 
+							HitPoints: {{statlistdict[0][adventurer]['HitPoints']}}  </li>
+					{% endfor %}
+				</ul>
+		</li>
+        
+        <li class= "w3-bar">
+                Team2 Wins/Losses: (
+				{{ teamlistdict[1]['Wins'] }} /
+				{{ teamlistdict[1]['Losses'] }} )
+            	<button id="Team2" class="w3-button w3-black w3-round-xlarge" onclick="showteam('team2list');">Show/Hide</button>
+                <a href = "{{ url_for('RPGPoker') }}" ><button id="Team1Battle" class="w3-button w3-black w3-round-xlarge">New Battle</button></a>
+                <a href = "{{ url_for('home') }}" ><button id="Team1Reset" class="w3-button w3-black w3-round-xlarge">Delete/Reroll Team</button></a>    
+				<ul id="team2list" style="display:none">
+					{% for adventurer in range(5): %}
+					<li>	{{statlistdict[1][adventurer]['CharacterName']}}
+							Level: {{statlistdict[1][adventurer]['Level']}}
+							XP:   {{statlistdict[1][adventurer]['XP']}}
+							Strength/Speed/Endurance: {{statlistdict[1][adventurer]['Strength']}} 
+							{{statlistdict[1][adventurer]['Speed']}}
+							{{statlistdict[1][adventurer]['Endurance']}} 
+							HitPoints: {{statlistdict[1][adventurer]['HitPoints']}}  </li>
+					{% endfor %}
+				</ul>
+		</li>
+        
+        <li class= "w3-bar">
+                Team3 Wins/Losses: (
+				{{ teamlistdict[2]['Wins'] }} /
+				{{ teamlistdict[2]['Losses'] }} )
+            	<button id="Team2" class="w3-button w3-black w3-round-xlarge" onclick="showteam('team3list');">Show/Hide</button>
+                <a href = "{{ url_for('RPGPoker') }}" ><button id="Team1Battle" class="w3-button w3-black w3-round-xlarge">New Battle</button></a>
+                <a href = "{{ url_for('home') }}" ><button id="Team1Reset" class="w3-button w3-black w3-round-xlarge">Delete/Reroll Team</button></a>    
+				<ul id="team3list" style="display:none">
+					{% for adventurer in range(5): %}
+					<li>	{{statlistdict[2][adventurer]['CharacterName']}}
+							Level: {{statlistdict[2][adventurer]['Level']}}
+							XP:   {{statlistdict[2][adventurer]['XP']}}
+							Strength/Speed/Endurance: {{statlistdict[2][adventurer]['Strength']}} 
+							{{statlistdict[2][adventurer]['Speed']}}
+							{{statlistdict[2][adventurer]['Endurance']}} 
+							HitPoints: {{statlistdict[2][adventurer]['HitPoints']}}  </li>
+					{% endfor %}
+                </ul>
+            </div>
+        </li>
+    </ul>
+</div>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "layoutDB.html" %}
+{% block content %}
+
+<div id="stats">
+	<script>
+		var xaxislist = {{xaxis}};
+		var yaxislist1 = {{strengthlist}};
+		var yaxislist2 = {{speedlist}};
+		var yaxislist3 = {{endurancelist}};
+		var i = 0;
+		var data = [];
+		for  ( i = 0; i < yaxislist1.length; i++) {
+			data.push( {
+			x: xaxislist,
+			y: yaxislist1[i],
+			mode: 'lines',
+			type: 'scatter'
+			})};
+		
+		var trace1 = {
+			x: xaxislist,
+			y: yaxislist1,
+			type: 'bar',
+			name: 'Strength'
+		};
+		
+		var trace2 = {
+			x: xaxislist,
+			y: yaxislist2,
+			type: 'bar',
+			name: 'Speed'
+		};
+
+		var trace3 = {
+			x: xaxislist,
+			y: yaxislist3,
+			type: 'bar',
+			name: 'Endurance'
+		};
+
+		var data1 = [trace1,trace2,trace3];
+		var layout = {barmode: 'group'};
+		
+		Plotly.newPlot('stats',data1, layout);      
+	</script>
+</div>
+
+{% endblock %}

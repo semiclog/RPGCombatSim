@@ -1,0 +1,172 @@
+{% extends "layoutDB.html" %}
+{% block content %}
+<script>
+	function showcombat() {
+	  document.getElementById("playerstatsplot").style.display = 'none';
+	  document.getElementById("enemystatsplot").style.display = 'none';
+	  document.getElementById("combathitpoints").style.display = 'block';
+	  document.getElementById("combatendurance").style.display = 'block';
+	}
+	function showstats() {
+	  document.getElementById("playerstatsplot").style.display = 'block';
+	  document.getElementById("enemystatsplot").style.display = 'block';
+	  document.getElementById("combathitpoints").style.display = 'none';
+	  document.getElementById("combatendurance").style.display = 'none';
+	}
+</script>
+
+<!-- Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<h1> The Battle </h1>
+<br>
+	
+<div id="battle_settings">
+	<table class="w3-table w3-bordered" >
+	  <tr>
+		<th>Name</th>
+		<th>Level</th>
+		<th>XP</th>
+		<th>Strength/Speed/Endurance</th>
+		<th>HitPoint</th>
+		<th>Actions</th>
+	  </tr>
+	  <tr>	
+			{% for adventurer in range(statlistdict[0]|length): %}
+		<td align="center">	{{statlistdict[0][adventurer]['CharacterName']}} </td>
+		<td align="center">	{{statlistdict[0][adventurer]['Level']}} </td>
+		<td align="center"> 	{{statlistdict[0][adventurer]['XP']}} </td>
+		<td align="center">	{{statlistdict[0][adventurer]['Strength']}} / 
+				{{statlistdict[0][adventurer]['Speed']}} /
+				{{statlistdict[0][adventurer]['Endurance']}} </td> 
+		<td align="center"> 	{{statlistdict[0][adventurer]['HitPoints']}} </td>
+		<td align="center"> </td>
+	  </tr>
+			{% endfor %}
+	  <tr><td colspan="6" height="50">VS</td></tr>
+	  <tr>	
+			{% for enemy in range(enemystatlistdict[0]|length): %}
+		<td align="center">	{{enemystatlistdict[0][enemy]['CharacterName']}} </td>
+		<td align="center">	{{enemystatlistdict[0][enemy]['Level']}} </td>
+		<td align="center"> 	{{enemystatlistdict[0][enemy]['XP']}} </td>
+		<td align="center">	{{enemystatlistdict[0][enemy]['Strength']}} / 
+				{{enemystatlistdict[0][enemy]['Speed']}} /
+				{{enemystatlistdict[0][enemy]['Endurance']}} </td> 
+		<td align="center"> 	{{enemystatlistdict[0][enemy]['HitPoints']}} </td>
+		<td align="center"> </td>
+	  </tr>
+			{% endfor %}
+  
+  </table>
+  
+      {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}
+      {% endif %}
+</div>
+
+<!-- Copy from RPGPoker.html  I should find a way to make it shared -->
+
+<div>
+<br>
+<button id="combatbutton" class="combatbuttons" onclick="showcombat()">Show me the Battle</button>
+<button id="statbutton" class="combatbuttons" onclick="showstats()">Show me the Stats</button>
+<br>
+</div>
+<div class="row">
+	<div class="column">
+		<div class="chart" id="playerstatsplot" >
+			<script>
+				var graphs1 = {{graphJSON1 | safe}};
+				Plotly.newPlot('playerstatsplot',graphs1,{displayModeBar: false});        
+			</script>
+		</div>
+	</div>
+	<div class="column">
+		<div class="chart" id="enemystatsplot"  >
+			<script>
+				var graphs2 = {{graphJSON2 | safe}};
+				Plotly.newPlot('enemystatsplot',graphs2,{displayModeBar: false});     
+			</script>
+		</div>
+	</div>
+</div>
+
+
+<div class="row">
+	<div class="column">
+		<div class="chart" id="combathitpoints" style="display:none">
+			<script>
+				var graphs3 = {{graphJSONcombathitpoints | safe}};
+				Plotly.newPlot('combathitpoints',graphs3,{displayModeBar: false});        
+			</script>
+		</div>
+	</div>
+	<div class="column">
+		<div class="chart" id="combatendurance" style="display:none" >
+			<script>
+				var graphs4 = {{graphJSONcombatendurance | safe}};
+				Plotly.newPlot('combatendurance',graphs4,{displayModeBar: false});     
+			</script>
+		</div>
+	</div>
+</div>
+
+
+<div class="row">
+	<div class="column">
+		<div class="chart" id="combathitpoints1" style="display:block;   border: 20px groove gold; border-radius: 5px; ">
+			<script>
+				var xaxislist = {{xcombataxis|tojson}};
+				var yaxislist = {{HitPointsList|tojson}};
+				var namelist =  {{NameList|tojson}};
+				var i = 0;
+				var data = [];
+				for  ( i = 0; i < yaxislist.length; i++) {
+					data.push( {
+					x: xaxislist,
+					y: yaxislist[i],
+					// I just have to figure out where I've hidden the player names in a single list
+					name: namelist[i],
+					mode: 'lines',
+					type: 'scatter'
+					})};
+				var trace1 = {
+					x: xaxislist,
+					y: yaxislist[0],
+					mode: 'lines',
+					type: 'scatter'
+				};
+				var data1 = [trace1];
+				
+				var layout = {
+					title: 'Battle Tracker: HitPoints',
+					showlegend: true,
+					autosize: false,
+					width: 500,
+					height: 250,
+					margin: {
+					l: 50,
+					r: 50,
+					b: 100,
+					t: 100,
+					pad: 4
+					},
+					paper_bgcolor: '#4CAF50',
+					// plot_bgcolor: '#4CAF50'
+					}
+				
+				Plotly.newPlot('combathitpoints1',data, layout);        
+			</script>
+		</div>
+	</div>
+	<div class="column">
+		<div class="chart" id="combatendurance1" style="display:block" >
+			<script>
+				var graphs5 = {{graphJSONcombatendurance | safe}};
+				Plotly.newPlot('combatendurance1',graphs5,{displayModeBar: false});     
+			</script>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
