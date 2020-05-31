@@ -8,7 +8,7 @@ Created on Tue Jan 14 20:55:44 2020
 import sqlite3, RPGGameDB, itertools
 
 def checkTables():
-    conn = sqlite3.connect( 'RPGPokerOld.db')
+    conn = sqlite3.connect( 'RPGPoker.db')
     c=conn.cursor()
     c.execute("SELECT name FROM sqlite_master WHERE type='table';")
     print(c.fetchall())
@@ -28,10 +28,12 @@ def checkRows():
     c=conn.cursor()
     #c.execute("INSERT INTO Players (PlayerName, PlayerPassword) VALUES ('Username1', 'Password1')")
     #c.execute("INSERT INTO Players (PlayerName, PlayerPassword) VALUES (?, ?)", (test1, test2))
-    c.execute("SELECT PlayerID, PlayerName FROM Players")
+    #c.execute("SELECT PlayerID, PlayerName FROM Players")
     #c.execute("SELECT PlayerName, PlayerPassword FROM Players")
     #c.execute("SELECT * FROM Characters")
     #c.execute("SELECT * FROM Enemies")
+    c.execute("SELECT * FROM Battles")
+    #c.execute("SELECT * FROM Attacks")
     print(c.fetchall())
     #print(c.fetchone())
     #print(c.fetchmany(2))
