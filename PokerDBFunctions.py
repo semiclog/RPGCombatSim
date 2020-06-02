@@ -23,20 +23,25 @@ def checkColumns():
     conn.commit()
     conn.close()
 
+def insertRows():
+    #c.execute("INSERT INTO Players (PlayerName, PlayerPassword) VALUES ('Username1', 'Password1')")
+    c.execute("INSERT INTO Players (PlayerName, PlayerPassword) VALUES (?, ?)", (test1, test2))
+
+def checkRowsInTable(table):
+    tablename = table
+    conn = sqlite3.connect( 'RPGPoker.db')
+    c=conn.cursor()
+    c.execute("SELECT * FROM %s" % (tablename))
+    print(c.fetchall())
+    conn.commit()
+    conn.close()
+
 def checkRows():
     conn = sqlite3.connect( 'RPGPoker.db')
     c=conn.cursor()
-    #c.execute("INSERT INTO Players (PlayerName, PlayerPassword) VALUES ('Username1', 'Password1')")
-    #c.execute("INSERT INTO Players (PlayerName, PlayerPassword) VALUES (?, ?)", (test1, test2))
-    #c.execute("SELECT PlayerID, PlayerName FROM Players")
+    c.execute("SELECT PlayerID, PlayerName FROM Players")
     #c.execute("SELECT PlayerName, PlayerPassword FROM Players")
-    #c.execute("SELECT * FROM Characters")
-    #c.execute("SELECT * FROM Enemies")
-    c.execute("SELECT * FROM Battles")
-    #c.execute("SELECT * FROM Attacks")
     print(c.fetchall())
-    #print(c.fetchone())
-    #print(c.fetchmany(2))
     conn.commit()
     conn.close()
 
@@ -146,8 +151,9 @@ def enemyStats():
 
 if __name__ == '__main__':
     #checkTables()
-    #checkColumns()
-    checkRows()
+    checkColumns()
+    #checkRows()
+    #checkRowsInTable("Characters")
     #checkColumns()
     #dropTables()
     #createTables()
