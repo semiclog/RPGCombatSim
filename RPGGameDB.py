@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This was originally copied from RPGStats_Object_NoDecks_2 
+This was originally copied from RPGStats_Object_NoDecks_2
     (same as the Dec 24 copy of the _1 version on Google Drive)
 I just wanted a copy in the Flask folder for importing and possibly modifying
 """
@@ -13,7 +13,7 @@ from plotly.subplots import make_subplots
 from plotly.offline import plot
 
 class Game:
-    
+
     def __init__(self, NumberOfPlayers = 2, NumberOfBattles = 5, NumberOfCards = 5):
         self.NumberOfPlayers = NumberOfPlayers
         self.NumberOfBattles = NumberOfBattles
@@ -29,17 +29,17 @@ class Game:
         for x in range(NumberOfPlayers):
             self.PlayerList.append(Player(x, NumberOfCards, self.EnemyCardList))
         #I want access to all the Cards in a single list
-        self.AllCardList = [y for x in 
+        self.AllCardList = [y for x in
                             ([x.PlayerCardList for x in self.PlayerList] + [x.EnemyCardList for x in self.PlayerList])
                             for y in x]
         self.Score = [0] * NumberOfPlayers
-        
+
     def UpdateScore(self, PlayerNumber, HitPointTotal):
         if HitPointTotal > 1:
             self.Score[PlayerNumber] += 1
 #Class for Players
 class Player:
-    
+
     def __init__(self, Id, NumberOfCards, EnemyCardList):
         self.IdNumber = Id
         #self.PlayerCardList = [Character("Player" + str(Id) + "_Adventurer" + str(x), Id, "Adventurer") for x in range(NumberOfCards)]
@@ -47,8 +47,8 @@ class Player:
         self.experiencePoints = [0]
         self.EnemyCardList = copy.deepcopy(EnemyCardList)
         #self.EnemyCardList = [Character("Enemy" + str(x), 0, "Enemy") for x in range(NumberOfCards)]
-        
-    
+
+
 #Class for Characters
 #Initianting a character creates strength, Speed, Endurance, HitPoints, Range and Luck stats with a given name
 #The stats are calculated with a "4d6 drop the lowest" method
@@ -82,12 +82,13 @@ class Character:
         #               (len([x for x in self.statList if x > 17])*4))
 
 class LoadCharacter:
-    def __init__(self, name, CharacterType,
+    def __init__(self, name, CharacterType, CharacterId,
                  strength,speed,endurance,
                  inputrange,luck,hitpoints,
                  armorclass,experiencepoints,level,
                  survivals,defeats):
         self.name = name
+        self.CharacterId = CharacterId
         self.CharacterType = CharacterType
         self.strength = strength
         self.speed = speed
@@ -101,6 +102,8 @@ class LoadCharacter:
         self.hitpointsStart = self.hitpoints  #this lets me reset hit points after a battle
         self.hitpointsListTemp=[]    #This lets me track hitpoints during the combat of each battle
         self.hitpointsList=[]    #This lets me track hitpoints for plotting later
+        self.attackEnemy=[]    #This lets me track the enemies for plotting later
+        self.attackEnemyList=[]    #This lets me track the enemies for plotting later
         self.attackEnemyList=[]    #This lets me track the enemies for plotting later
         self.armorclass = armorclass
         self.experiencepoints = experiencepoints
@@ -117,7 +120,7 @@ class LoadCharacter:
 def CharacterRoll():
     statlistd6=[random.randint(1,6), random.randint(1,6), random.randint(1,6), random.randint(1,6)]
     return sum(statlistd6)-min(statlistd6)
-    
+
 #not setup yet
 def Deal(PlayerCardLists, EnemyCardLists):
     return
@@ -125,7 +128,7 @@ def Deal(PlayerCardLists, EnemyCardLists):
 #calculate damage
 def DamageRoll(Character):
     return Character.strength//6 + Character.speed//6 + Character.endurance//6 + Character.luck//6
-    
+
 #Run the combat for each Player
 def Combat(PlayerCardList, EnemyCardList, PrintOn=False):
     combatList = PlayerCardList + EnemyCardList
@@ -140,13 +143,13 @@ def Combat(PlayerCardList, EnemyCardList, PrintOn=False):
         x.hitpoints = x.hitpointsStart
         x.enduranceListTemp = [x.enduranceStart]
         x.hitpointsListTemp = [x.hitpointsStart]
-    
+
     RoundNumber = 1
     #loop through combat until all the adventurers or all the enemies have 0 hit points
-    while (sum(PlayerCharacter.hitpoints for PlayerCharacter in PlayerCardList) > 0 and 
+    while (sum(PlayerCharacter.hitpoints for PlayerCharacter in PlayerCardList) > 0 and
            sum(EnemyCharacter.hitpoints for EnemyCharacter in EnemyCardList) > 0):
         if PrintOn:
-            print("\nRound" + str(RoundNumber) + " Starts\n" + 
+            print("\nRound" + str(RoundNumber) + " Starts\n" +
               "Starting HitPoints - " + PrintHitPoints(PlayerCardList, EnemyCardList) + "\n" +
               "Starting Endurance - " + PrintEndurance(PlayerCardList, EnemyCardList) + "\n")
         #each characters attack a random character from the opposing list
@@ -171,7 +174,7 @@ def Combat(PlayerCardList, EnemyCardList, PrintOn=False):
                     #This second loop is if the Character is from the Enemy (ie. fight an adventurer)
                     #Only fight if there are concious adventurers to be fought
                     elif sum(x.hitpoints for x in PlayerCardList) > 0:
-                        fightEnemy = random.sample([x for x in PlayerCardList if x.hitpoints > 0],1)[0] 
+                        fightEnemy = random.sample([x for x in PlayerCardList if x.hitpoints > 0],1)[0]
                         if Character.hitpoints > 0 and Character.endurance > 0: #and armor class check succeeds
                             fightEnemy.hitpoints = max((fightEnemy.hitpoints - DamageRoll(Character)),0)
                             if fightEnemy.hitpoints == 0:
@@ -202,7 +205,7 @@ def Combat(PlayerCardList, EnemyCardList, PrintOn=False):
             elif sum(x.hitpoints for x in PlayerCardList) == 0:
                 print("\nThe Enemies have won!!\n")
                 break
-    #Append the battle stat list to each Character 
+    #Append the battle stat list to each Character
     for x in combatList:
         x.enduranceList.append(x.enduranceListTemp)
         x.hitpointsList.append(x.hitpointsListTemp)
@@ -218,10 +221,10 @@ def PrintCombat(Character, fightEnemy, combatList, PlayerCardList, EnemyCardList
         print(("     " + Character.name + " has no hitpoints and cannot attack - ").ljust(54," ") +
               PrintHitPoints(PlayerCardList, EnemyCardList))
     elif Character.endurance <= 3:
-        print(("     " + Character.name + " is exhausted and cannot attack -").ljust(54," ") + 
+        print(("     " + Character.name + " is exhausted and cannot attack -").ljust(54," ") +
               PrintHitPoints(PlayerCardList, EnemyCardList))
     else:
-        print("     " + Character.name + " attacked " + fightEnemy.name + 
+        print("     " + Character.name + " attacked " + fightEnemy.name +
           " for " + str(DamageRoll(Character)) + "pts of damage - " + PrintHitPoints(PlayerCardList, EnemyCardList))
 
 def ExtractStats(Card):
@@ -229,11 +232,11 @@ def ExtractStats(Card):
     return StatList
 
 def PrintHitPoints(PlayerCardList, EnemyCardList):
-    return (("P" + str([x.hitpoints for x in PlayerCardList])).ljust(21, " ") + 
+    return (("P" + str([x.hitpoints for x in PlayerCardList])).ljust(21, " ") +
           (" E" + str([x.hitpoints for x in EnemyCardList])).ljust(21, " "))
 
 def PrintEndurance(PlayerCardList, EnemyCardList):
-    return (("P" + str([x.endurance for x in PlayerCardList])).ljust(21, " ") + 
+    return (("P" + str([x.endurance for x in PlayerCardList])).ljust(21, " ") +
           (" E" + str([x.endurance for x in EnemyCardList])).ljust(21, " "))
 
 def PrintCards(CardList):
@@ -262,7 +265,7 @@ def PlotStats(CardList,ListName):
     xaxis=["Strength","Speed","Endurance","HitPpoints","ArmorClass","Luck","Rating"]
     markertype=['circle','square','diamond', 'triangle-up', 'star', 'cross-thin']
     markercolor=['red','blue','yellow','purple','orange']
-    markersize=[18, 16, 14, 12, 10]       
+    markersize=[18, 16, 14, 12, 10]
     fig = go.Figure()
     for i, Card in enumerate(CardList):
         fig.add_trace(
@@ -290,7 +293,7 @@ def PlotStats1(Player,ListName):
     xaxis=["Strength","Speed","Endurance","HitPpoints","ArmorClass","Luck","Rating"]
     markertype=['circle','square','diamond', 'triangle-up', 'star', 'cross-thin']
     markercolor=['red','blue','yellow','purple','orange']
-    markersize=[18, 16, 14, 12, 10]       
+    markersize=[18, 16, 14, 12, 10]
     fig = make_subplots(rows=1, cols=2)
     for i, Card in enumerate(Player.PlayerCardList):
         fig.add_trace(
@@ -305,7 +308,7 @@ def PlotStats1(Player,ListName):
                 color='MediumPurple',
                 width=2
             )), row=1, col=1)
-        
+
     for i, Card in enumerate(Player.EnemyCardList):
         fig.add_trace(
             go.Scatter(x=xaxis, y=ExtractStats(Card), name=Card.name,
@@ -319,7 +322,7 @@ def PlotStats1(Player,ListName):
                 color='MediumPurple',
                 width=2
             )), row=1, col=2)
-        
+
     # Edit the layout
     fig.update_layout(title=ListName,
         width=800,
@@ -330,13 +333,13 @@ def PlotStats1(Player,ListName):
     fig.show()
     #required to show plots in Spyder
     #plot(fig)
-    
+
 def PlotCombat(Player, ListName):
     x = list(range(len(Player.PlayerCardList[0].hitpointsList[0])))
     fig = make_subplots(rows=1,cols=2)
     for Card in Player.PlayerCardList:
         fig.add_trace(
-            go.Scatter(x=x, y=Card.hitpointsList[0], name=Card.name, 
+            go.Scatter(x=x, y=Card.hitpointsList[0], name=Card.name,
             mode='lines',
             line=dict(
                 color='blue',
@@ -344,7 +347,7 @@ def PlotCombat(Player, ListName):
             )),row=1,col=1)
     for Card in Player.EnemyCardList:
         fig.add_trace(
-            go.Scatter(x=x, y=Card.hitpointsList[0], name=Card.name, 
+            go.Scatter(x=x, y=Card.hitpointsList[0], name=Card.name,
             mode='lines',
             line=dict(
                 color='red',
@@ -352,7 +355,7 @@ def PlotCombat(Player, ListName):
             )),row=1,col=1)
     for Card in Player.PlayerCardList:
         fig.add_trace(
-            go.Scatter(x=x, y=Card.enduranceList[0], name=Card.name, 
+            go.Scatter(x=x, y=Card.enduranceList[0], name=Card.name,
             mode='lines',
             line=dict(
                 color='blue',
@@ -360,7 +363,7 @@ def PlotCombat(Player, ListName):
             )),row=1,col=2)
     for Card in Player.EnemyCardList:
         fig.add_trace(
-            go.Scatter(x=x, y=Card.enduranceList[0], name=Card.name, 
+            go.Scatter(x=x, y=Card.enduranceList[0], name=Card.name,
             mode='lines',
             line=dict(
                 color='red',
@@ -380,13 +383,13 @@ def PlotCombat(Player, ListName):
 if __name__ == '__main__':
     Game1 = Game()
     PlotStats1(Game1.PlayerList[0], "Player" + str(Game1.PlayerList[0].IdNumber))
-    
+
     #PlotStats(Game1.PlayerList[0].EnemyCardList, "Enemy")
-    
+
     #for x in range(Game1.NumberOfBattles):
     #    Combat([x.PlayerCardList for x in Game1.PlayerList], [x.EnemyCardList for x in Game1.PlayerList], Game1.NumberOfCards, Game1.NumberOfCards)
     #    print(Game1.Score)
-    
+
     Combat(Game1.PlayerList[0].PlayerCardList, Game1.PlayerList[0].EnemyCardList)
-    
-    PlotCombat(Game1.PlayerList[0], "Player" + str(Game1.PlayerList[0].IdNumber))    
+
+    PlotCombat(Game1.PlayerList[0], "Player" + str(Game1.PlayerList[0].IdNumber))
