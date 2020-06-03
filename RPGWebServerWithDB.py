@@ -37,8 +37,9 @@ def DatabaseBattleUpdate(PlayerCardList, EnemyCardList, CharacterIdList):
 
     #Get the BattleID we just entered
     g.db = connect_db()
-    cur = g.db.execute('''SELECT last_insert_rowid()''')
-    BattleID = cur.fetchall()
+    cur = g.db.execute('''SELECT max(BattleID) FROM Battles''')
+    BattleID = cur.fetchone()[0]
+    print('BattleID')
     print(BattleID)
     g.db.close()
 
@@ -58,8 +59,19 @@ def DatabaseBattleUpdate(PlayerCardList, EnemyCardList, CharacterIdList):
     for attack in range(len(PlayerCardList[0].enduranceList)):
         for adventurer in PlayerCardList+EnemyCardList:
             RoundID = math.ceil((attack+1)/len(adventurer.enduranceList))
+            print('hitpointsList')
+            print(adventurer.hitpointsList)
+            print('enduranceList')
             print(adventurer.enduranceList)
+            print('attackEnemyList ')
+            print(adventurer.attackEnemyList)
+            print('attackEnemyList 1')
+            print(adventurer.attackEnemyList[0][0])
+
+            print('round ')
             print(RoundID)
+            print('attack')
+            print(attack)
             conn = sqlite3.connect('RPGPoker.db')
             c=conn.cursor()
             c.execute('''INSERT INTO Attacks
@@ -67,7 +79,8 @@ def DatabaseBattleUpdate(PlayerCardList, EnemyCardList, CharacterIdList):
               CharacterID, CharacterType, OpponentID,
               CharacterEnduranceEnd, CharacterHitPointsEnd)
             VALUES(?,?,?,?,?,?,?,?)''',
-            (BattleID, RoundID, attack, adventurer.CharacterId,adventurer.CharacterType,adventurer.attackEnemyList[attack],
+            (BattleID, RoundID, attack, adventurer.CharacterId,adventurer.CharacterType,
+            adventurer.attackEnemyList[0][attack],
             adventurer.enduranceList[0][attack], adventurer.hitpointsList[0][attack]))
             conn.commit()
             conn.close()
@@ -172,6 +185,7 @@ def Game(PlayerList=False, EnemyList=False):
             )))
     combathitpointdataEnemy = []
     for i, Card in enumerate(EnemyList):
+
         combathitpointdataEnemy.append(
             go.Scatter(x=xcombataxis, y=Card.hitpointsList[0], name=Card.name,
             mode='lines',
@@ -244,7 +258,9 @@ def Game(PlayerList=False, EnemyList=False):
     EnduranceList=PlayerEnduranceList + EnemyEnduranceList
     AttackEnemyList=PlayerAttackEnemyList + EnemyAttackEnemyList
     NameList=PlayerNameList+EnemyNameList
+    print('HitPointsList')
     print(HitPointsList)
+    print('NameList')
     print(NameList)
 
 
@@ -588,7 +604,7 @@ def battle_settings():
     if request.method == 'POST':
         req = request.get_json()
         res = make_response(jsonify({"message": "JSON recieved" }), 200)
-        print(req)
+        print('request' + req)
         return res
     else:
         g.db = connect_db()

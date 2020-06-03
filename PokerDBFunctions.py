@@ -151,9 +151,9 @@ def enemyStats():
 
 if __name__ == '__main__':
     #checkTables()
-    checkColumns()
+    #checkColumns()
     #checkRows()
-    #checkRowsInTable("Characters")
+    checkRowsInTable("Battles")
     #checkColumns()
     #dropTables()
     #createTables()
