@@ -107,6 +107,7 @@ def createTables():
               PRIMARY KEY (BattleID))''')
 
     c.execute('''CREATE TABLE IF NOT EXISTS Attacks(
+              ROWID INTEGER NOT NULL,
               BattleID   INTEGER  NOT NULL,
               RoundID    INTEGER NOT NULL,
               AttackID   INTEGER NOT NULL,
@@ -115,7 +116,7 @@ def createTables():
               OpponentID   INTEGER NOT NULL,
               CharacterEnduranceEnd   INTEGER NOT NULL,
               CharacterHitPointsEnd   INTEGER NOT NULL,
-              PRIMARY KEY (AttackID),
+              PRIMARY KEY (ROWID),
               FOREIGN KEY (BattleID) REFERENCES BattleID(Battles),
               FOREIGN KEY (CharacterID) REFERENCES CharacterID(Characters))''')
 
@@ -153,7 +154,7 @@ if __name__ == '__main__':
     #checkTables()
     #checkColumns()
     #checkRows()
-    checkRowsInTable("Battles")
+    checkRowsInTable("Attacks")
     #checkColumns()
     #dropTables()
     #createTables()
