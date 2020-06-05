@@ -255,10 +255,6 @@ def Game(PlayerList=False, EnemyList=False):
     EnduranceList=PlayerEnduranceList + EnemyEnduranceList
     AttackEnemyList=PlayerAttackEnemyList + EnemyAttackEnemyList
     NameList=PlayerNameList+EnemyNameList
-    print('HitPointsList')
-    print(HitPointsList)
-    print('NameList')
-    print(NameList)
 
 
     return [statsdataPlayer, statsdataEnemy, statslayout,
