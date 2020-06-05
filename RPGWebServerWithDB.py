@@ -24,8 +24,6 @@ app.database = "RPGPoker.db"
 def DatabaseBattleUpdate(PlayerCardList, EnemyCardList, CharacterIdList):
     #Create Battle entry, Battle_Character entries, and Attacks entries
 
-    #I need to get CharacterId into the object or at least the LoadObject when it comes back from the database
-
     #Create Battle entry
     conn = sqlite3.connect('RPGPoker.db')
     c=conn.cursor()
@@ -43,35 +41,10 @@ def DatabaseBattleUpdate(PlayerCardList, EnemyCardList, CharacterIdList):
     print(BattleID)
     g.db.close()
 
-    #Create Battle_Character entries
-    #Since I'm tracking stats of every character for every stat I don't need this anymore
-    #conn = sqlite3.connect('RPGPoker.db')
-    #c=conn.cursor()
-    #for ID in CharacterIDList:
-    #    c.execute('''INSERT INTO Battles_Characters
-    #        (BattleID, CharacterID)
-    #        VALUES(?,?)''',(BattleID,ID))
-    #conn.commit()
-    #conn.close()
-
-    #Create Atacks entries
-    #I think I have to create an entry for
+    #Create Attacks entries
     for attack in range(len(PlayerCardList[0].enduranceList)):
         for adventurer in PlayerCardList+EnemyCardList:
             RoundID = math.ceil((attack+1)/len(adventurer.enduranceList))
-            print('hitpointsList')
-            print(adventurer.hitpointsList)
-            print('enduranceList')
-            print(adventurer.enduranceList)
-            print('attackEnemyList ')
-            print(adventurer.attackEnemyList)
-            print('attackEnemyList 1')
-            print(adventurer.attackEnemyList[0][0])
-
-            print('round ')
-            print(RoundID)
-            print('attack')
-            print(attack)
             conn = sqlite3.connect('RPGPoker.db')
             c=conn.cursor()
             c.execute('''INSERT INTO Attacks
@@ -82,6 +55,30 @@ def DatabaseBattleUpdate(PlayerCardList, EnemyCardList, CharacterIdList):
             (BattleID, RoundID, attack, adventurer.CharacterId,adventurer.CharacterType,
             adventurer.attackEnemyList[0][attack],
             adventurer.enduranceList[0][attack], adventurer.hitpointsList[0][attack]))
+            conn.commit()
+            for adventurer in PlayerCardList+EnemyCardList:
+                RoundID = math.ceil((attack+1)/len(adventurer.enduranceList))
+                conn = sqlite3.connect('RPGPoker.db')
+                c=conn.cursor()
+                c.execute('''INSERT INTO Attacks
+                (BattleID, RoundID, AttackID,
+                  CharacterID, CharacterType, OpponentID,
+                  CharacterEnduranceEnd, CharacterHitPointsEnd)
+                VALUES(?,?,?,?,?,?,?,?)''',
+                (BattleID, RoundID, attack, adventurer.CharacterId,adventurer.CharacterType,
+                adventurer.attackEnemyList[0][attack],
+                adventurer.enduranceList[0][attack], adventurer.hitpointsList[0][attack]))
+                conn.commit()
+                conn.close()
+
+        #Update Character XP, Level, Survivals, defeats
+        for adventurer in PlayerCardList:
+            conn = sqlite3.connect('RPGPoker.db')
+            c=conn.cursor()
+            c.execute('''Update Characters
+            set XP = ?, Level = ?, Survivals = ?, Defeats = ?
+            where CharacterId = ?''',(adventurer.experiencepoints,adventurer.experiencepoints//1000,
+            adventurer.survivals,adventurer.defeats,adventurer.CharacterId))
             conn.commit()
             conn.close()
 
@@ -358,65 +355,8 @@ def createplayer():
                  adventurer.survivals,adventurer.defeats))
             conn.commit()
             conn.close()
-
-            #Insert 3 Teams into Teams table referencing the PlayerID
-            #conn = sqlite3.connect('RPGPoker.db')
-            #c=conn.cursor()
-            #for x in range(3):
-            #    c.execute('INSERT INTO Teams (PlayerID) VALUES (?)', (PlayerID, ))
-            #conn.commit()
-            #conn.close()
-            #Get the TEAMIDs of the added teams
-                #g.db = connect_db()
-                #cur = g.db.execute('''SELECT TEAMID PlayerID FROM Teams
-                #                   INNER JOIN Players ON Players.PlayerID=Teams.PlayerID
-                #                   WHERE PlayerName = (?)''', (request.form['username'],))
-                #teamlistdict = [dict(TeamIDs=row[0]) for row in cur.fetchall()]
-                #teamlist = [x['TeamIDs'] for x in teamlistdict]
-                #g.db.close()
-            #Insert Characters into each of the teams with associated Player and Team IDs
-            #    PlayerCardList = [RPGGameDB.Character("Adventurer" + str(x), "Adventurer") for x in range(5)]
-            #    conn = sqlite3.connect('RPGPoker.db')
-            #    c=conn.cursor()
-            #    for adventurer in PlayerCardList:
-            #        c.execute('''INSERT INTO Characters
-            #        (TeamID, PlayerID, CharacterName, CharacterType, Strength, Speed, Endurance, Hitpoints)
-            #        VALUES(?,?,?,?,?,?,?,?)''', (team, PlayerID, adventurer.name,adventurer.CharacterType,adventurer.strength,adventurer.speed,adventurer.endurance,adventurer.hitpoints))
-            #    conn.commit()
-            #    conn.close()
             return redirect(url_for('home'))
     return render_template('RPGCreatePlayer.html', error=error)
-
-# =============================================================================
-# @app.route('/teams')
-# def teams():
-#     if session:
-#         sessionname=session['username']
-#         g.db = connect_db()
-#         cur = g.db.execute('''SELECT TeamID, PlayerName, Wins, Losses FROM Teams
-#                            INNER JOIN Players ON Players.PlayerID=Teams.PlayerID
-#                            WHERE PlayerName = (?)''', (sessionname,))
-#         teamlistdict = [dict(TeamIDs=row[0],PlayerName=row[1],Wins=row[2],Losses=row[3]) for row in cur.fetchall()]
-#         teamlist = [x['TeamIDs'] for x in teamlistdict]
-#         g.db.close()
-#         g.db = connect_db()
-#         statlistdict=[]
-#         for team in teamlist:
-#             cur = g.db.execute('''SELECT TeamID, PlayerName, CharacterName, CharacterType,
-#                                          Strength, Speed, Endurance, Hitpoints, Level, XP, CharacterID
-#                            FROM Characters
-#                            INNER JOIN Players ON Players.PlayerID=Characters.PlayerID
-#                            WHERE PlayerName = (?) AND
-#                            TeamID = (?) AND
-#                            CharacterType = (?)''', (sessionname,team,'Adventurer'))
-#             statlistdict.append([dict(TeamID=row[0], PlayerID=row[1], CharacterName=row[2],
-#                                CharacterType=row[3], Strength=row[4], Speed=row[5],
-#                                Endurance=row[6], HitPoints=row[7], Level=row[8], XP=row[9],
-#                                CharacterID=row[10]) for row in cur.fetchall()])
-#         g.db.close()
-#         return render_template('RPGteamsDB.html', teamlistdict=teamlistdict, statlistdict=statlistdict)
-#     else: return redirect(url_for('login'))
-# =============================================================================
 
 @app.route('/players')
 def players():
@@ -437,15 +377,6 @@ def players():
         g.db.close()
         return render_template('RPGPlayersDB.html', statlistdict=statlistdict)
     else: return redirect(url_for('login'))
-
-#I don't think I use this.  But the idea is to have a URL that creates new players
-#At the moment I create characters at /createplayer and reroll the attributes in javascript on the teams page
-#I should pick one or the other.  I could always do it in javascript.  I don't know what is faster.
-@app.route('/createteam')
-def createteam():
-    PlayerCardList = [RPGGameDB.Character("Adventurer" + str(x), Id, "Adventurer") for x in range(5)]
-    EnemyCardList = [RPGGameDB.Character("Enemy" + str(x), 0, "Enemy") for x in range(5)]
-    return redirect(url_for('home'))
 
 @app.route('/details')
 def details():

@@ -154,7 +154,7 @@ if __name__ == '__main__':
     #checkTables()
     #checkColumns()
     #checkRows()
-    checkRowsInTable("Attacks")
+    checkRowsInTable("Characters")
     #checkColumns()
     #dropTables()
     #createTables()

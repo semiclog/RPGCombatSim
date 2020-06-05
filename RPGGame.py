@@ -130,8 +130,15 @@ def Deal(PlayerCardLists, EnemyCardLists):
     return
 
 #calculate damage
-def DamageRoll(Character):
-    return Character.strength//6 + Character.speed//6 + Character.endurance//6 + Character.luck//6
+#def DamageRoll(Character):
+#    return Character.strength//6 + Character.speed//6 + Character.endurance//6 + Character.luck//6
+
+#calculate damage with input from user
+DamageModifierList = [6,6,6,6]
+def DamageRoll(Character,DamageModifierList = [6,12,12,12]):
+    return (Character.strength//DamageModifierList[0] + Character.speed//DamageModifierList[1] +
+    Character.endurance//DamageModifierList[2] + Character.luck//DamageModifierList[3])
+
 
 #Run the combat for each Player
 def Combat(PlayerCardList, EnemyCardList, PrintOn=False):
